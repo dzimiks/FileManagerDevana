@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html ng-app="devanaLabs" ng-cloak>
+  <head>
+    <title>Devana Labs App</title>
+
+    <link rel="shortcut icon" href="https://pbs.twimg.com/profile_images/584993451390959616/nLHk83YN.png">
+    <!-- jQuery library  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+    [ng\:cloak], [ng-cloak], .ng-cloak {
+      display: none;
+    }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Controller div  -->
+    <div id="body" class="container-fluid" ng-controller="devanaCtrl">
+
+      <button id="addFolderBtn" class="btn btn-success" ng-click="addFolderVisibility=true; refreshFolderInputs()" >Create folder</button>
+      <button id="addFileBtn" class="btn btn-success" ng-click="addFileVisibility=true; refreshFileInputs()">Create file</button>
+      <button id="back" class="btn btn-success" ng-if="path.length>0" ng-click="goBack()">Back</button><br><br>
+
+      <table class="table table-hover">
+        <!-- Folders  -->
+        <tr class="folders" ng-repeat="folder in opened.foldersArray | orderBy">
+          <td><img class="icon" ng-src="folder.png" ng-click="openFolder(folder)"></td>
+          <td ng-click="openFolder(folder)">{{folder}}</td>
+
+          <td><button id="editFolderBtn" ng-click="showEditFolderModal(folder)">Edit folder</button></td>
+          <td><button ng-click="deleteFolder(folder)">Delete folder</button></td>
+        </tr>
+        <!-- Files  -->
+        <tr class="files" ng-repeat="file in opened.files | orderBy">
+          <td><img class="icon" ng-src="{{getExtension(file)}}.png"></td>
+          <td>{{file}}</td>
+
+          <td><button id="editFileBtn" ng-click="showEditFileModal(file)">Edit file</button></td>
+          <td><button ng-click="deleteFile(file)">Delete file</button></td>
+        </tr>
+      </table>
+
+        <!-- File Modal -->
+        <div id="addFileModal" class="modals" ng-show="addFileVisibility">
+
+          <!-- Modal content -->
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <span class="close" ng-click="addFileVisibility=false">&times</span>
+              <h3>Create File</h3>
+            </div><br>
+
+            <div class="modal-body">
+
+              <label>Name: </label>
+              <input type="text" ng-model="newFileName">
+              <select ng-model="newExtension">
+                <option value=".html">.html</option>
+                <option value=".js">.js</option>
+                <option value=".css">.css</option>
+                <option value=".php">.php</option>
+              </select><br/><br/>
+
+              <label>Location: </label>
+              <input type="text" ng-model="locationOfFile"> For example: root/Folder1<br/><br/>
+            </div>
+
+            <div class="modal-footer">
+              <button ng-click="addFile()">Add file</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Folder Modal  -->
+        <div id="addFolderModal" class="modals" ng-show="addFolderVisibility">
+
+          <!-- Modal content -->
+          <div class="modal-content">
+
+            <div class="modal-header" >
+            <span class="close" ng-click="addFolderVisibility=false">&times</span>
+            <h3>Create Folder</h3>
+          </div><br/>
+
+          <div class="modal-body">
+
+            <label>Name: </label>
+            <input id="newFolderName" type="text" ng-model="newFolderName"><br/><br/>
+
+            <label>Location: </label>
+            <input type="text" ng-model="locationOfFolder"> For example: root/Folder1<br/><br/>
+          </div>
+
+          <div class="modal-footer">
+            <button ng-click="addFolder()">Add folder</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit File Modal  -->
+      <div id="editFileModal" class="modals" ng-show="editFileVisibility">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <span class="close" ng-click="editFileVisibility=false">&times</span>
+            <h3>Edit file</h3>
+          </div><br/>
+
+          <div class="modal-body">
+
+            <label>Name: </label>
+            <input type="text" ng-model="editedFileName">
+            <select ng-model="editedExtension" >
+              <option value=".html">.html</option>
+              <option value=".js">.js</option>
+              <option value=".css">.css</option>
+              <option value=".php">.php</option>
+            </select><br/><br/>
+          </div>
+
+          <div class="modal-footer">
+            <button ng-click="editFile()">Edit file</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Folder Modal  -->
+      <div id="editFolderModal" class="modals" ng-show="editFolderVisibility">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <span class="close" ng-click="editFolderVisibility=false">&times</span>
+            <h3>Edit folder</h3>
+          </div><br/>
+
+          <div class="modal-body">
+            <label>Name: </label>
+            <input type="text" ng-model="editedFolderName" ><br/><br/>
+          </div>
+
+          <div class="modal-footer">
+            <button ng-click="editFolder()">Edit folder</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer></footer>
+    <script type="text/javascript" src="angular.js"></script>
+  </body>
+</html>
